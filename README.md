@@ -1,26 +1,108 @@
 # Last Call 🍺
 
-A single-player **bouncer simulation** mobile game built with React Native and Expo. Check IDs, manage the crowd, keep the bar profitable — and don't get busted.
+A single-player **bouncer simulation** mobile game powered by Claude AI. Check IDs, read psychological tells, manage the crowd — and don't get busted.
+
+---
+
+## Setup
+
+### Prerequisites
+- [Node.js](https://nodejs.org) (v18+)
+- [Expo Go](https://expo.dev/go) on your iOS or Android phone
+- An [Anthropic API key](https://console.anthropic.com)
+
+### Install
+
+```bash
+git clone https://github.com/mridenhour/last-call-game.git
+cd last-call-game
+npm install
+```
+
+### Configure API Key
+
+```bash
+cp .env.example .env
+# Edit .env and add your key:
+# ANTHROPIC_API_KEY=sk-ant-api03-...
+```
+
+### Run
+
+```bash
+npx expo start
+```
+
+Scan the QR code with **Expo Go**. The game runs fully offline except for AI patron generation calls.
 
 ---
 
 ## How to Play
 
-You're the bouncer. Each night, a queue of patrons approaches. Your job:
+Each round, Claude AI generates a unique patron — psychologically complex, with hidden agendas, behavioral tells, and real manipulation tactics. Your job as the bouncer:
 
-- **Check their ID** — verify age, expiry date, and state capital
-- **Spot fakes** — wrong birth year, wrong state capital, expired license
-- **Handle emotional pleas** — flirts, sob stories, guilt trips, and cash bribes
-- **Manage police heat** — too many bad calls and you get raided
-- **Eject troublemakers** — or fight them in the street
-- **Stay profitable** — negative balance at closing = game over
+1. **Read the patron** — observe their visible behavior, sobriety, and attitude
+2. **Start a conversation** — ask questions and interrogate their story
+3. **Spot behavioral tells** — five tells are hidden in every patron's profile; they'll slip under pressure
+4. **Decide: LET IN or REJECT** — based on what you've learned
+5. **Dossier reveal** — the full psychological breakdown is shown after every decision
+6. **Handle trouble** — if they cause a disturbance inside, eject them with the 3-phase fight system
 
 ### Fail States
 | Cause | Result |
 |-------|--------|
 | Police heat reaches 100% | Raided — game over |
 | Lose a street fight | Down for the count — game over |
-| Negative balance at end of night | Fired — game over |
+| Negative balance when broke | Fired — game over |
+
+---
+
+## AI Mechanics
+
+### Procedural Patron Generation
+Every patron is generated fresh via **Claude claude-sonnet-4-20250514**. No two patrons are the same:
+- Deception types: underage fake ID, borrowed sibling ID, banned patron, dangerously drunk valid ID, drug dealer, anxious legitimate patron, no ID at all
+- Age range 18–55, varied genders, backgrounds, sophistication levels
+- Scales with bar location — dive bar patrons are simpler, nightclub patrons are complex
+
+### Live AI Conversation
+Patrons respond in-character to everything you say. They:
+- Open with a line that reflects their psychological state and sobriety
+- Fill silence with character-revealing behavior after 8 seconds
+- React to your interrogation style — pushing harder if you're empathetic, crumbling faster if you're tough
+- May spontaneously attempt a bribe when cornered (3 response options: Accept / Reject / Counter)
+
+### Emergent Bouncer Personality
+Your typing style is analyzed in real time to classify you as one of four archetypes:
+
+| Type | Style | Effect |
+|------|-------|--------|
+| **Tough** 🤜 | Short, direct, no-nonsense | Nervous patrons crumble faster |
+| **Sarcastic** 😏 | Wit, irony, dry humor | Patrons get defensive or amused |
+| **By-the-Book** 📋 | Procedural, formal | Hard to charm, misses emotional nuance |
+| **Empathetic** 🤝 | Warm, asks follow-ups | Gets more truth, easier to manipulate |
+
+Your personality is shown as a live badge during conversations and fed back into the patron's AI so they adapt.
+
+### Voice System
+- Every patron speaks their lines aloud via **expo-speech** with unique pitch and rate
+- Mute toggle available during conversation
+- Voice characteristics (pitch, rate, style) are generated per-patron
+
+---
+
+## Fight Mini-Game (3 Phases)
+
+Triggered when you eject a troublemaking patron who was incorrectly let in.
+
+**Phase 1 — Standoff** (read the tell)
+The patron displays one behavioral tell before attacking. Choose Dodge / Block / Strike First. Correct read → health advantage. Wrong read → eat the first hit.
+
+**Phase 2 — Exchange** (zone tapping)
+Attack and defense prompts flash across Left / Center / Right zones with a shrinking time window. Speed escalates every 5 seconds. Drunk patrons are slow and unpredictable; psychopaths are fast and relentless.
+
+**Phase 3 — Breaking Point** (psychological read)
+When either fighter drops below 25%, the patron delivers a line from their psychological profile. Choose from 3 bouncer responses: De-escalate, Confront, or Psychological Insight. The correct option is determined by the patron's profile. Getting it right ends the fight immediately.
 
 ---
 
@@ -33,82 +115,33 @@ You're the bouncer. Each night, a queue of patrons approaches. Your job:
 | 3 | **Sky & Rye** — Rooftop Lounge | Big spenders, bigger problems | 🟡 Medium | $25+ |
 | 4 | **VAULT** — Nightclub | Zero tolerance, maximum chaos | 🔴 High | $40+ |
 
-Each location increases patron volume, police aggression, and bribe costs.
-
----
-
-## Running Locally with Expo Go
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org) (v18+)
-- [Expo Go](https://expo.dev/go) installed on your iOS or Android phone
-
-### Setup
-
-```bash
-git clone https://github.com/mridenhour/last-call-game.git
-cd last-call-game
-npm install
-npx expo start
-```
-
-Scan the QR code in your terminal with the **Expo Go** app. The game runs fully offline — no backend required.
-
-### Share with Friends
-
-Once running, anyone on your local network can scan the same QR code with Expo Go to play.
-
 ---
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Framework | React Native + Expo |
-| Language | TypeScript |
-| Navigation | Manual state machine (no router dependency) |
+| Framework | React Native + Expo SDK 54 |
+| Language | TypeScript / React 19 |
+| AI | Anthropic Claude claude-sonnet-4-20250514 via direct `fetch` API |
+| Voice | `expo-speech` (TTS, works in Expo Go) |
+| Environment | `react-native-dotenv` via Babel |
 | Persistence | `@react-native-async-storage/async-storage` — offline high scores |
 | Visuals | `expo-linear-gradient`, custom dark neon aesthetic |
-| Platform | iOS + Android via Expo Go, Expo Web ready |
 
 ### Project Structure
 
 ```
 src/
-  game/         # Pure logic — types, patron generation, police, fight, scoring
-  hooks/        # useGameState (core loop), useHighScores (AsyncStorage)
-  components/   # HUD, IDCard, PatronCard, FightMinigame, BribeModal, AlertBanner
-  screens/      # MainMenu, Game, GameOver, HighScores
-  constants/    # Colors, layout dimensions
+  api/          # Anthropic API calls — patron generation + conversation
+  game/         # Pure logic — AI types, personality inference, bribe detection, fight phases
+  hooks/        # useAiGameState, useConversation, useFight, useVoice, useBouncerPersonality
+  components/   # All UI — GeneratingScreen, AiPatronCard, ConversationUI, DossierReveal, fight phases
+  screens/      # AiGameScreen orchestrator + original classic screens
+  constants/    # Colors, layout
 ```
 
 Game logic and UI are fully separated so the app can be extended to Expo Web or Mac Catalyst.
-
----
-
-## Gameplay Mechanics
-
-### ID Checking
-Each ID card shows name, date of birth, state of issuance, expiry date, and listed state capital. Fake IDs use one of five tricks:
-- Wrong birth year (makes an underage patron appear 21+)
-- Wrong state capital
-- Expired license
-- Out-of-region state
-- Name mismatch
-
-Tap **VERIFY** on any ID to cross-check the state capital against a trivia overlay.
-
-### Police Heat Meter
-Every underage patron you let in raises the heat meter. At 70% you get a warning. At 100% the police raid. You can bribe officers to drop the meter — costs scale with heat level and bar location.
-
-### Fight Minigame
-When you eject a troublemaker they may resist. Street fights use a **BLOCK / DODGE / STRIKE** counter system:
-- STRIKE beats BLOCK
-- BLOCK beats DODGE  
-- DODGE beats STRIKE
-
-Higher fight levels mean smarter enemy AI.
 
 ---
 
