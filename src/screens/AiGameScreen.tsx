@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, StatusBar, SafeAreaView
 } from 'react-native';
@@ -20,6 +20,8 @@ import FightStandoff from '../components/FightStandoff';
 import FightExchange from '../components/FightExchange';
 import FightBreakingPoint from '../components/FightBreakingPoint';
 import HUD from '../components/HUD';
+import QuitConfirmDialog from '../components/QuitConfirmDialog';
+import PauseOverlay from '../components/PauseOverlay';
 import { GameState } from '../game/types';
 
 interface AiGameScreenProps {
@@ -29,6 +31,8 @@ interface AiGameScreenProps {
 
 export default function AiGameScreen({ location, onGoToMenu }: AiGameScreenProps) {
   const game = useAiGameState(location);
+  const [showQuit, setShowQuit] = useState(false);
+  const [paused, setPaused] = useState(false);
 
   const {
     phase, patron, conversation, isPatronTyping, pendingBribe,
@@ -36,7 +40,7 @@ export default function AiGameScreen({ location, onGoToMenu }: AiGameScreenProps
     balance, score, patronsProcessed, policeMeter, night, isMuted,
     gameOverReason, locationConfig,
     sendBouncerMessage, makeDecision, respondToBribe,
-    toggleMute, proceedToFight, onFightEnd, nextPatron, retry,
+    toggleMute, playMessage, proceedToFight, onFightEnd, nextPatron, retry,
   } = game;
 
   // Derive whether patron would cause trouble after being let in
@@ -226,12 +230,27 @@ export default function AiGameScreen({ location, onGoToMenu }: AiGameScreenProps
       {/* HUD */}
       <HUD state={hudState} onBribePress={undefined} />
 
+      {/* Dialogs */}
+      <QuitConfirmDialog
+        visible={showQuit}
+        score={score}
+        onResume={() => setShowQuit(false)}
+        onQuit={() => { setShowQuit(false); onGoToMenu(); }}
+      />
+      <PauseOverlay
+        visible={paused}
+        onResume={() => setPaused(false)}
+        onQuit={() => { setPaused(false); onGoToMenu(); }}
+      />
+
       {/* Patron intro card */}
       {phase === 'patron_intro' && patron && (
         <AiPatronCard
           patron={patron}
           onBeginConversation={() => {/* auto-handled by state */}}
           isLoadingOpener={isPatronTyping}
+          onQuit={() => setShowQuit(true)}
+          onPause={() => setPaused(true)}
         />
       )}
 
@@ -245,8 +264,11 @@ export default function AiGameScreen({ location, onGoToMenu }: AiGameScreenProps
           isMuted={isMuted}
           onSend={sendBouncerMessage}
           onToggleMute={toggleMute}
+          onPlayMessage={playMessage}
           onLetIn={() => makeDecision('letIn')}
           onReject={() => makeDecision('reject')}
+          onQuit={() => setShowQuit(true)}
+          onPause={() => setPaused(true)}
         />
       )}
 

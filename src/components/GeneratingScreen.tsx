@@ -37,6 +37,14 @@ export default function GeneratingScreen({ generation, onRetry }: GeneratingScre
       <Text style={styles.title}>GENERATING PATRON</Text>
       <Text style={styles.subtitle}>Consulting psychological database...</Text>
 
+      {/* Progress bar */}
+      <View style={styles.progressTrack}>
+        <Animated.View style={[
+          styles.progressFill,
+          { width: `${(generation.logs.length / 8) * 100}%` as any },
+        ]} />
+      </View>
+
       <View style={styles.logBox}>
         <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false}>
           {generation.logs.map((line, i) => (
@@ -92,6 +100,14 @@ const styles = StyleSheet.create({
   },
   logActive: { color: COLORS.neonGreen },
   logError: { color: COLORS.neonPink },
+  progressTrack: {
+    width: '100%', height: 6, backgroundColor: COLORS.borderDim,
+    borderRadius: 3, overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%', backgroundColor: COLORS.neonPink,
+    borderRadius: 3,
+  },
   logCursor: { color: COLORS.neonGreen, fontSize: 14 },
   errorBlock: {
     width: '100%', alignItems: 'center', gap: LAYOUT.spacing.md,

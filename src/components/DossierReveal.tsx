@@ -35,22 +35,22 @@ export default function DossierReveal({
       />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Header */}
+        {/* Big verdict — leads the screen */}
+        <View style={[styles.verdictBanner, { backgroundColor: correct ? 'rgba(0,255,178,0.12)' : 'rgba(255,45,85,0.12)', borderColor: decisionColor }]}>
+          <Text style={[styles.verdictBig, { color: decisionColor }]}>
+            {correct ? '✓ CORRECT' : '✗ WRONG CALL'}
+          </Text>
+          <Text style={[styles.verdictPoints, { color: scoreChange >= 0 ? COLORS.neonYellow : COLORS.neonPink }]}>
+            {scoreChange >= 0 ? '+' : ''}{scoreChange} pts
+          </Text>
+        </View>
+
+        {/* Patron identity */}
         <View style={styles.header}>
           <Text style={styles.portrait}>{patron.emoji}</Text>
           <View style={styles.headerInfo}>
             <Text style={styles.patronName}>{patron.name}</Text>
-            <View style={[styles.verdictBadge, { borderColor: decisionColor }]}>
-              <Text style={[styles.verdictText, { color: decisionColor }]}>
-                {correct ? '✅ CORRECT CALL' : '❌ WRONG CALL'}
-              </Text>
-            </View>
-          </View>
-          <View style={styles.scoreCol}>
-            <Text style={[styles.scoreChange, { color: scoreChange >= 0 ? COLORS.neonYellow : COLORS.neonPink }]}>
-              {scoreChange >= 0 ? '+' : ''}{scoreChange}
-            </Text>
-            <Text style={styles.scoreLabel}>PTS</Text>
+            <Text style={styles.deceptionReveal}>{patron.deceptionType}</Text>
           </View>
         </View>
 
@@ -176,17 +176,17 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row', alignItems: 'center', gap: LAYOUT.spacing.md,
   },
-  portrait: { fontSize: 48 },
-  headerInfo: { flex: 1, gap: 6 },
-  patronName: { color: COLORS.textPrimary, fontSize: LAYOUT.fontSize.xl, fontWeight: '800' },
-  verdictBadge: {
-    borderWidth: 1, borderRadius: 6,
-    paddingHorizontal: 8, paddingVertical: 3, alignSelf: 'flex-start',
+  verdictBanner: {
+    borderRadius: 16, borderWidth: 2,
+    paddingVertical: LAYOUT.spacing.lg, paddingHorizontal: LAYOUT.spacing.xl,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
   },
-  verdictText: { fontSize: 10, fontWeight: '800', letterSpacing: 1.5 },
-  scoreCol: { alignItems: 'center' },
-  scoreChange: { fontSize: LAYOUT.fontSize.xxl, fontWeight: '900' },
-  scoreLabel: { color: COLORS.textDim, fontSize: 9, letterSpacing: 1.5 },
+  verdictBig: { fontSize: LAYOUT.fontSize.title, fontWeight: '900', letterSpacing: 2 },
+  verdictPoints: { fontSize: LAYOUT.fontSize.xxl, fontWeight: '900' },
+  portrait: { fontSize: 48 },
+  headerInfo: { flex: 1, gap: 4 },
+  patronName: { color: COLORS.textPrimary, fontSize: LAYOUT.fontSize.xl, fontWeight: '800' },
+  deceptionReveal: { color: COLORS.neonPink, fontSize: 10, fontWeight: '800', letterSpacing: 2, textTransform: 'uppercase' },
   revealBox: {
     backgroundColor: COLORS.bgSurface, borderRadius: 12,
     padding: LAYOUT.spacing.lg, gap: 8,

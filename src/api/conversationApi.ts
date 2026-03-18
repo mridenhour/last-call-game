@@ -26,7 +26,7 @@ ${brideText}
 VOICE CHARACTER: ${patron.voiceDesc}
 BOUNCER PERSONALITY READING: The bouncer comes across as ${bouncerPersonality}. Adapt accordingly — a Tough bouncer makes nervous patrons crumble faster, an Empathetic bouncer can be manipulated more easily, a Sarcastic bouncer puts patrons on defense, a By-the-Book bouncer is hard to charm but misses emotional nuance.
 
-RULES: Stay completely in character. Never acknowledge being an AI. Sobriety level must be evident in speech — low sobriety means slurring, losing train of thought, emotional volatility, repeating yourself. Use your manipulation tactics naturally and adapt if they fail. React authentically to your trigger points. Fill silences in a way that reveals your character. Every opening line must be unique and reflect your psychological state — never start with a generic greeting. Keep responses 2-4 sentences unless emotionally escalated. Never break character under any circumstances.`;
+RULES: Stay completely in character. Never acknowledge being an AI. Sobriety level must be evident in speech — low sobriety means slurring, losing train of thought, emotional volatility, repeating yourself. Use your manipulation tactics naturally and adapt if they fail. React authentically to your trigger points. Fill silences in a way that reveals your character. Every opening line must be unique and reflect your psychological state — never start with a generic greeting. Your opening line must be 1-2 sentences maximum — often just a greeting and handing over ID is most realistic. Keep all responses 2-3 sentences unless emotionally escalated. Never break character under any circumstances.`;
 }
 
 function toApiMessages(messages: ConversationMessage[]): ApiMessage[] {

@@ -7,6 +7,7 @@ import { useConversation } from './useConversation';
 import { useBouncerPersonality } from './useBouncerPersonality';
 import { useFight } from './useFight';
 import { useVoice } from './useVoice';
+import * as Haptics from 'expo-haptics';
 
 const POLICE_INCREASE_BAD_CALL = 18;
 const POLICE_INCREASE_BRIBE_ACCEPT_SMALL = 15;
@@ -44,9 +45,10 @@ export function useAiGameState(location: BarLocation) {
     }
   }, [generation.generation.status, generation.patron]);
 
-  // When patron_intro is ready, get opening line
+  // When patron_intro is ready, get opening line + haptic
   useEffect(() => {
     if (phase === 'patron_intro' && generation.patron) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
       conversation.getOpeningLine().then(() => {
         setPhase('conversation');
       });
@@ -101,7 +103,10 @@ export function useAiGameState(location: BarLocation) {
     setBalance(b => b + revenue);
     setPatronsProcessed(p => p + 1);
 
-    if (!correct) {
+    if (correct) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    } else {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
       setPoliceMeter(m => {
         const next = Math.min(POLICE_BUST_THRESHOLD, m + POLICE_INCREASE_BAD_CALL);
         return next;
@@ -142,6 +147,7 @@ export function useAiGameState(location: BarLocation) {
 
   const proceedToFight = useCallback(() => {
     if (!generation.patron) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {});
     fight.startFight(generation.patron, personality);
     setPhase('fight');
   }, [generation.patron, fight, personality]);
@@ -203,6 +209,7 @@ export function useAiGameState(location: BarLocation) {
     makeDecision,
     respondToBribe,
     toggleMute: voice.toggleMute,
+    playMessage: conversation.playMessage,
     proceedToFight,
     onFightEnd,
     nextPatron,

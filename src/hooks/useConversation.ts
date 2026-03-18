@@ -3,6 +3,7 @@ import { AIPatron, ConversationMessage, BribeOffer, BouncerPersonality } from '.
 import { getPatronResponse, getPatronSilenceResponse } from '../api/conversationApi';
 import { detectBribeAttempt } from '../game/bribeDetection';
 import { VoiceHook } from './useVoice';
+import * as Haptics from 'expo-haptics';
 
 export interface ConversationHook {
   messages: ConversationMessage[];
@@ -12,6 +13,7 @@ export interface ConversationHook {
   sendBouncerMessage: (text: string) => Promise<void>;
   triggerSilenceResponse: () => Promise<void>;
   getOpeningLine: () => Promise<void>;
+  playMessage: (text: string) => void;
   reset: () => void;
 }
 
@@ -50,16 +52,12 @@ export function useConversation(
         msg.isBribe = true;
         msg.brideDetectedAmount = bribeResult.amount;
         setPendingBribe({ amount: bribeResult.amount, messageId: id, patronText: text });
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {});
       }
     }
 
     messagesRef.current = [...currentMessages, msg];
     setMessages([...messagesRef.current]);
-
-    // Speak the patron's response
-    if (patron) {
-      voice.speak(text, patron.voicePitch, patron.voiceRate);
-    }
 
     return msg;
   }, [patron, pendingBribe, voice]);
@@ -116,6 +114,12 @@ export function useConversation(
     }
   }, [patron, personality, isPatronTyping, handlePatronText]);
 
+  const playMessage = useCallback((text: string) => {
+    if (patron) {
+      voice.speak(text, patron.voicePitch, patron.voiceRate);
+    }
+  }, [patron, voice]);
+
   const clearBribe = useCallback(() => setPendingBribe(null), []);
 
   const reset = useCallback(() => {
@@ -133,6 +137,7 @@ export function useConversation(
     sendBouncerMessage,
     triggerSilenceResponse,
     getOpeningLine,
+    playMessage,
     reset,
   };
 }

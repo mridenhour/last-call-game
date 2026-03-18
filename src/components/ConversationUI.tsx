@@ -16,13 +16,16 @@ interface ConversationUIProps {
   isMuted: boolean;
   onSend: (text: string) => void;
   onToggleMute: () => void;
+  onPlayMessage: (text: string) => void;
   onLetIn: () => void;
   onReject: () => void;
+  onQuit: () => void;
+  onPause: () => void;
 }
 
 export default function ConversationUI({
   patron, messages, isPatronTyping, personality,
-  isMuted, onSend, onToggleMute, onLetIn, onReject,
+  isMuted, onSend, onToggleMute, onPlayMessage, onLetIn, onReject, onQuit, onPause,
 }: ConversationUIProps) {
   const [input, setInput] = useState('');
   const scrollRef = useRef<ScrollView>(null);
@@ -65,13 +68,19 @@ export default function ConversationUI({
           <Text style={styles.patronEmoji}>{patron.emoji}</Text>
           <View>
             <Text style={styles.patronName}>{patron.name}</Text>
-            <Text style={styles.patronDesc} numberOfLines={1}>{patron.deceptionType}</Text>
+            <Text style={styles.patronDesc} numberOfLines={1}>{patron.voiceDesc}</Text>
           </View>
         </View>
         <View style={styles.headerRight}>
           <PersonalityBadge personality={personality} />
           <TouchableOpacity onPress={onToggleMute} style={styles.muteBtn}>
             <Text style={styles.muteBtnText}>{isMuted ? '🔇' : '🔊'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={onPause} style={styles.iconBtn}>
+            <Text style={styles.iconBtnText}>⏸</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={onQuit} style={styles.iconBtn}>
+            <Text style={[styles.iconBtnText, { color: COLORS.neonPink }]}>✕</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -96,9 +105,19 @@ export default function ConversationUI({
             ]}>
               {msg.text}
             </Text>
-            <Text style={styles.bubbleTime}>
-              {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </Text>
+            <View style={styles.bubbleFooter}>
+              <Text style={styles.bubbleTime}>
+                {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </Text>
+              {msg.role === 'patron' && !isMuted && (
+                <TouchableOpacity
+                  onPress={() => onPlayMessage(msg.text)}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Text style={styles.playIcon}>🔊</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
         ))}
 
@@ -111,13 +130,15 @@ export default function ConversationUI({
         )}
       </ScrollView>
 
-      {/* Decision buttons */}
+      {/* Decision buttons — large, thumb-friendly, opposite sides */}
       <View style={styles.decisionRow}>
-        <TouchableOpacity style={styles.rejectDecisionBtn} onPress={onReject} activeOpacity={0.8}>
-          <Text style={styles.rejectDecisionText}>✗ REJECT</Text>
+        <TouchableOpacity style={styles.rejectDecisionBtn} onPress={onReject} activeOpacity={0.75}>
+          <Text style={styles.rejectDecisionText}>✗</Text>
+          <Text style={styles.rejectDecisionLabel}>REJECT</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.letInBtn} onPress={onLetIn} activeOpacity={0.8}>
-          <Text style={styles.letInText}>✓ LET IN</Text>
+        <TouchableOpacity style={styles.letInBtn} onPress={onLetIn} activeOpacity={0.75}>
+          <Text style={styles.letInText}>✓</Text>
+          <Text style={styles.letInLabel}>LET IN</Text>
         </TouchableOpacity>
       </View>
 
@@ -162,6 +183,8 @@ const styles = StyleSheet.create({
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: LAYOUT.spacing.sm },
   muteBtn: { padding: 6 },
   muteBtnText: { fontSize: 20 },
+  iconBtn: { padding: 6 },
+  iconBtnText: { fontSize: 16, color: COLORS.textDim, fontWeight: '700' },
   messageList: { flex: 1 },
   messageListContent: {
     padding: LAYOUT.spacing.md, paddingBottom: LAYOUT.spacing.xl, gap: LAYOUT.spacing.sm,
@@ -185,7 +208,9 @@ const styles = StyleSheet.create({
   bubbleText: { fontSize: LAYOUT.fontSize.md, lineHeight: 22 },
   bouncerText: { color: COLORS.textPrimary },
   patronText: { color: COLORS.textSecondary },
-  bubbleTime: { color: COLORS.textDim, fontSize: 9, alignSelf: 'flex-end' },
+  bubbleFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 },
+  bubbleTime: { color: COLORS.textDim, fontSize: 9 },
+  playIcon: { fontSize: 12 },
   typingBubble: { opacity: 0.7 },
   typingText: { color: COLORS.textDim, fontSize: LAYOUT.fontSize.sm, fontStyle: 'italic' },
   decisionRow: {
@@ -194,14 +219,20 @@ const styles = StyleSheet.create({
   },
   rejectDecisionBtn: {
     flex: 1, backgroundColor: COLORS.neonPink,
-    borderRadius: 10, paddingVertical: 12, alignItems: 'center',
+    borderRadius: 16, paddingVertical: 18, alignItems: 'center',
+    shadowColor: COLORS.neonPink, shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4, shadowRadius: 10,
   },
-  rejectDecisionText: { color: '#FFF', fontWeight: '900', fontSize: LAYOUT.fontSize.sm, letterSpacing: 2 },
+  rejectDecisionText: { color: '#FFF', fontWeight: '900', fontSize: 26 },
+  rejectDecisionLabel: { color: 'rgba(255,255,255,0.8)', fontWeight: '700', fontSize: 10, letterSpacing: 2, marginTop: 2 },
   letInBtn: {
     flex: 1, backgroundColor: COLORS.neonGreen,
-    borderRadius: 10, paddingVertical: 12, alignItems: 'center',
+    borderRadius: 16, paddingVertical: 18, alignItems: 'center',
+    shadowColor: COLORS.neonGreen, shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4, shadowRadius: 10,
   },
-  letInText: { color: '#000', fontWeight: '900', fontSize: LAYOUT.fontSize.sm, letterSpacing: 2 },
+  letInText: { color: '#000', fontWeight: '900', fontSize: 26 },
+  letInLabel: { color: 'rgba(0,0,0,0.7)', fontWeight: '700', fontSize: 10, letterSpacing: 2, marginTop: 2 },
   inputRow: {
     flexDirection: 'row', paddingHorizontal: LAYOUT.spacing.md,
     paddingBottom: LAYOUT.spacing.md, gap: LAYOUT.spacing.sm,
