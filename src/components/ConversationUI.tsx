@@ -7,6 +7,8 @@ import { COLORS } from '../constants/colors';
 import { LAYOUT } from '../constants/layout';
 import { ConversationMessage, AIPatron, BouncerPersonality } from '../game/aiTypes';
 import PersonalityBadge from './PersonalityBadge';
+import PatronIllustration from './PatronIllustration';
+import AiIDCard from './AiIDCard';
 
 interface ConversationUIProps {
   patron: AIPatron;
@@ -28,6 +30,7 @@ export default function ConversationUI({
   isMuted, onSend, onToggleMute, onPlayMessage, onLetIn, onReject, onQuit, onPause,
 }: ConversationUIProps) {
   const [input, setInput] = useState('');
+  const [showID, setShowID] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
   const typingDots = useRef(new Animated.Value(0)).current;
 
@@ -65,7 +68,7 @@ export default function ConversationUI({
       {/* Header strip */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={styles.patronEmoji}>{patron.emoji}</Text>
+          <PatronIllustration patron={patron} size={36} />
           <View>
             <Text style={styles.patronName}>{patron.name}</Text>
             <Text style={styles.patronDesc} numberOfLines={1}>{patron.voiceDesc}</Text>
@@ -73,6 +76,11 @@ export default function ConversationUI({
         </View>
         <View style={styles.headerRight}>
           <PersonalityBadge personality={personality} />
+          {patron.hasID && (
+            <TouchableOpacity onPress={() => setShowID(true)} style={styles.idBtn}>
+              <Text style={styles.idBtnText}>🪪</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity onPress={onToggleMute} style={styles.muteBtn}>
             <Text style={styles.muteBtnText}>{isMuted ? '🔇' : '🔊'}</Text>
           </TouchableOpacity>
@@ -83,6 +91,14 @@ export default function ConversationUI({
             <Text style={[styles.iconBtnText, { color: COLORS.neonPink }]}>✕</Text>
           </TouchableOpacity>
         </View>
+
+        {/* ID card modal */}
+        <AiIDCard
+          patron={patron}
+          visible={showID}
+          onClose={() => setShowID(false)}
+          onAskQuestion={(q) => { onSend(q); }}
+        />
       </View>
 
       {/* Messages */}
@@ -177,12 +193,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1, borderBottomColor: COLORS.borderDim,
   },
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: LAYOUT.spacing.sm },
-  patronEmoji: { fontSize: 28 },
   patronName: { color: COLORS.textPrimary, fontSize: LAYOUT.fontSize.md, fontWeight: '700' },
   patronDesc: { color: COLORS.neonPink, fontSize: 10, fontWeight: '600', letterSpacing: 1 },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: LAYOUT.spacing.sm },
   muteBtn: { padding: 6 },
   muteBtnText: { fontSize: 20 },
+  idBtn: { padding: 6 },
+  idBtnText: { fontSize: 20 },
   iconBtn: { padding: 6 },
   iconBtnText: { fontSize: 16, color: COLORS.textDim, fontWeight: '700' },
   messageList: { flex: 1 },

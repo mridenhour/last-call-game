@@ -22,6 +22,7 @@ import FightBreakingPoint from '../components/FightBreakingPoint';
 import HUD from '../components/HUD';
 import QuitConfirmDialog from '../components/QuitConfirmDialog';
 import PauseOverlay from '../components/PauseOverlay';
+import BarCapacity from '../components/BarCapacity';
 import { GameState } from '../game/types';
 
 interface AiGameScreenProps {
@@ -41,6 +42,7 @@ export default function AiGameScreen({ location, onGoToMenu }: AiGameScreenProps
     gameOverReason, locationConfig,
     sendBouncerMessage, makeDecision, respondToBribe,
     toggleMute, playMessage, proceedToFight, onFightEnd, nextPatron, retry,
+    patronsLetIn, barCapacity,
   } = game;
 
   // Derive whether patron would cause trouble after being let in
@@ -230,6 +232,11 @@ export default function AiGameScreen({ location, onGoToMenu }: AiGameScreenProps
       {/* HUD */}
       <HUD state={hudState} onBribePress={undefined} />
 
+      {/* Bar capacity strip */}
+      <View style={styles.capacityWrap}>
+        <BarCapacity patronsLetIn={patronsLetIn} capacity={barCapacity} />
+      </View>
+
       {/* Dialogs */}
       <QuitConfirmDialog
         visible={showQuit}
@@ -309,6 +316,7 @@ const statStyles = StyleSheet.create({
 
 const styles = StyleSheet.create({
   fullScreen: { flex: 1, backgroundColor: COLORS.bg },
+  capacityWrap: { paddingHorizontal: LAYOUT.spacing.md, paddingTop: LAYOUT.spacing.xs },
   gameOverContent: {
     flex: 1, alignItems: 'center', justifyContent: 'center',
     paddingHorizontal: LAYOUT.spacing.xl, gap: LAYOUT.spacing.lg,

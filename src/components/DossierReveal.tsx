@@ -8,6 +8,7 @@ import { LAYOUT } from '../constants/layout';
 import { AIPatron, BouncerPersonality, PERSONALITY_COLORS } from '../game/aiTypes';
 import { formatMoney } from '../game/scoring';
 import StatBar from './StatBar';
+import PatronIllustration from './PatronIllustration';
 
 interface DossierRevealProps {
   patron: AIPatron;
@@ -47,7 +48,7 @@ export default function DossierReveal({
 
         {/* Patron identity */}
         <View style={styles.header}>
-          <Text style={styles.portrait}>{patron.emoji}</Text>
+          <PatronIllustration patron={patron} size={64} />
           <View style={styles.headerInfo}>
             <Text style={styles.patronName}>{patron.name}</Text>
             <Text style={styles.deceptionReveal}>{patron.deceptionType}</Text>
@@ -183,7 +184,6 @@ const styles = StyleSheet.create({
   },
   verdictBig: { fontSize: LAYOUT.fontSize.title, fontWeight: '900', letterSpacing: 2 },
   verdictPoints: { fontSize: LAYOUT.fontSize.xxl, fontWeight: '900' },
-  portrait: { fontSize: 48 },
   headerInfo: { flex: 1, gap: 4 },
   patronName: { color: COLORS.textPrimary, fontSize: LAYOUT.fontSize.xl, fontWeight: '800' },
   deceptionReveal: { color: COLORS.neonPink, fontSize: 10, fontWeight: '800', letterSpacing: 2, textTransform: 'uppercase' },

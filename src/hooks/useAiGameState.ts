@@ -12,7 +12,16 @@ import * as Haptics from 'expo-haptics';
 const POLICE_INCREASE_BAD_CALL = 18;
 const POLICE_INCREASE_BRIBE_ACCEPT_SMALL = 15;
 const POLICE_INCREASE_BRIBE_ACCEPT_LARGE = 30;
+const POLICE_INCREASE_OVER_CAPACITY = 8;   // per patron over limit
 const POLICE_BUST_THRESHOLD = 100;
+
+// Max patrons the bar can hold before police heat escalates
+const BAR_CAPACITY: Record<string, number> = {
+  dive: 20,
+  college: 30,
+  rooftop: 15,
+  nightclub: 40,
+};
 
 export function useAiGameState(location: BarLocation) {
   const locationConfig = BAR_CONFIGS[location];
@@ -26,6 +35,7 @@ export function useAiGameState(location: BarLocation) {
   const [balance, setBalance] = useState(0);
   const [score, setScore] = useState(0);
   const [patronsProcessed, setPatronsProcessed] = useState(0);
+  const [patronsLetIn, setPatronsLetIn] = useState(0);
   const [policeMeter, setPoliceMeter] = useState(0);
   const [night, setNight] = useState(1);
   const [playerDecision, setPlayerDecision] = useState<'letIn' | 'reject' | null>(null);
@@ -102,6 +112,16 @@ export function useAiGameState(location: BarLocation) {
     setScore(s => s + scoreChange);
     setBalance(b => b + revenue);
     setPatronsProcessed(p => p + 1);
+    if (decision === 'letIn') {
+      setPatronsLetIn(n => {
+        const next = n + 1;
+        const cap = BAR_CAPACITY[location] ?? 25;
+        if (next > cap) {
+          setPoliceMeter(m => Math.min(POLICE_BUST_THRESHOLD, m + POLICE_INCREASE_OVER_CAPACITY));
+        }
+        return next;
+      });
+    }
 
     if (correct) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
@@ -214,5 +234,7 @@ export function useAiGameState(location: BarLocation) {
     onFightEnd,
     nextPatron,
     retry,
+    patronsLetIn,
+    barCapacity: BAR_CAPACITY[location] ?? 25,
   };
 }

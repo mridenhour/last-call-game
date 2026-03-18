@@ -4,6 +4,7 @@ import { COLORS } from '../constants/colors';
 import { LAYOUT } from '../constants/layout';
 import { AIPatron } from '../game/aiTypes';
 import StatBar from './StatBar';
+import PatronIllustration from './PatronIllustration';
 
 interface AiPatronCardProps {
   patron: AIPatron;
@@ -39,7 +40,9 @@ export default function AiPatronCard({ patron, onBeginConversation, isLoadingOpe
 
       {/* Portrait + name */}
       <View style={styles.header}>
-        <Text style={styles.portrait}>{patron.emoji}</Text>
+        <View style={styles.illustrationWrap}>
+          <PatronIllustration patron={patron} size={72} />
+        </View>
         <View style={styles.nameBlock}>
           <Text style={styles.name}>{patron.name}</Text>
           <Text style={styles.gender}>{patron.gender} · {patron.voiceDesc}</Text>
@@ -92,7 +95,7 @@ const styles = StyleSheet.create({
     padding: LAYOUT.spacing.lg,
     borderWidth: 1, borderColor: COLORS.borderDim,
   },
-  portrait: { fontSize: 56 },
+  illustrationWrap: { width: 72, alignItems: 'center' },
   nameBlock: { flex: 1, gap: 4 },
   name: { color: COLORS.textPrimary, fontSize: LAYOUT.fontSize.xxl, fontWeight: '900' },
   gender: { color: COLORS.textDim, fontSize: LAYOUT.fontSize.xs, fontStyle: 'italic' },
