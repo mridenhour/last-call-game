@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/usr/local/bin/npm --version)",
+      "Bash(/opt/homebrew/bin/npm --version)",
+      "Read(//usr/local/bin/**)",
+      "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
+      "Bash(npm install:*)",
+      "Bash(/opt/homebrew/bin/npm install:*)",
+      "Read(//opt/homebrew/bin/**)",
+      "Bash(ls /usr/local/bin/node*)",
+      "Read(//opt/homebrew/Cellar/**)",
+      "Bash(/opt/homebrew/Cellar/node/25.8.1_1/bin/node /opt/homebrew/bin/npm install)",
+      "Bash(/opt/homebrew/Cellar/node/25.8.1_1/bin/node node_modules/.bin/tsc --noEmit)",
+      "Bash(/opt/homebrew/Cellar/node/25.8.1_1/bin/node -e \"const pkg = require\\(''/Users/markridenhour/Projects/last-call-game/package.json''\\); console.log\\(JSON.stringify\\(pkg, null, 2\\)\\)\")",
+      "Bash(/opt/homebrew/Cellar/node/25.8.1_1/bin/node /opt/homebrew/bin/npm install --legacy-peer-deps)",
+      "Bash(/opt/homebrew/Cellar/node/25.8.1_1/bin/node /opt/homebrew/bin/npm --version)",
+      "Bash(/opt/homebrew/Cellar/node/25.8.1_1/bin/node -e \"console.log\\(require\\(''/Users/markridenhour/Projects/last-call-game/node_modules/expo-linear-gradient/package.json''\\).version\\)\")",
+      "Bash(/opt/homebrew/Cellar/node/25.8.1_1/bin/node -e \":*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(/Users/markridenhour/Projects/last-call-game/.gitignore:*)",
+      "Bash(git reset:*)",
+      "Bash(git commit:*)",
+      "Bash(gh repo:*)",
+      "Bash(/opt/homebrew/bin/brew install:*)",
+      "Bash(/opt/homebrew/bin/gh repo:*)",
+      "Bash(/opt/homebrew/bin/gh auth:*)",
+      "Bash(/opt/homebrew/bin/git push:*)",
+      "Bash(git push:*)"
+    ]
+  }
+}

@@ -1,21 +1,24 @@
 import React, { useEffect } from 'react';
-import { SafeAreaView, StyleSheet, View } from 'react-native';
+import { SafeAreaView, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { COLORS } from './src/constants/colors';
 import { useGameState } from './src/hooks/useGameState';
 import { useHighScores } from './src/hooks/useHighScores';
 import { BarLocation } from './src/game/types';
-import { BAR_CONFIGS } from './src/game/locations';
 
 import MainMenuScreen from './src/screens/MainMenuScreen';
 import GameScreen from './src/screens/GameScreen';
 import GameOverScreen from './src/screens/GameOverScreen';
 import HighScoreScreen from './src/screens/HighScoreScreen';
+import AiGameScreen from './src/screens/AiGameScreen';
 
-type AppScreen = 'menu' | 'game' | 'scores';
+type AppScreen = 'menu' | 'classic_game' | 'ai_game' | 'scores';
 
 export default function App() {
   const [screen, setScreen] = React.useState<AppScreen>('menu');
+  const [aiLocation, setAiLocation] = React.useState<BarLocation>('dive');
+
+  // Classic game state
   const { state, startGame, beginNight, nextPatron, viewID, openTriviaCheck,
     closeTriviaCheck, openEmotionalPhase, makeDecision, dismissPoliceWarning,
     openBribe, payBribe, declineBribe, handleDisturbance, executeFightMove,
@@ -24,7 +27,7 @@ export default function App() {
 
   const highScore = scores.length > 0 ? scores[0].score : 0;
 
-  // Save score when game ends
+  // Save classic score on game end
   useEffect(() => {
     if (state.phase === 'game_over' || state.phase === 'night_end') {
       if (state.score > 0) {
@@ -39,14 +42,14 @@ export default function App() {
     }
   }, [state.phase]);
 
-  function handleStartGame(location: BarLocation) {
-    startGame(location);
-    setScreen('game');
+  function handleStartAiGame(location: BarLocation) {
+    setAiLocation(location);
+    setScreen('ai_game');
   }
 
-  function handleRestart() {
-    startGame(state.location);
-    setScreen('game');
+  function handleStartClassicGame(location: BarLocation) {
+    startGame(location);
+    setScreen('classic_game');
   }
 
   function handleMenu() {
@@ -54,15 +57,7 @@ export default function App() {
     setScreen('menu');
   }
 
-  function handleEndNight() {
-    // After night ends, return to menu with option to continue
-    handleMenu();
-  }
-
-  // ── Active game phases ───────────────────────────────────────────────────
-
-  const gameOverPhase = state.phase === 'game_over';
-  const nightEndPhase = state.phase === 'night_end';
+  // ── Scores ───────────────────────────────────────────────────────────────────
 
   if (screen === 'scores') {
     return (
@@ -76,11 +71,14 @@ export default function App() {
     );
   }
 
+  // ── Menu ─────────────────────────────────────────────────────────────────────
+
   if (screen === 'menu') {
     return (
       <SafeAreaView style={styles.safe}>
+        <StatusBar style="light" />
         <MainMenuScreen
-          onStartGame={handleStartGame}
+          onStartGame={handleStartAiGame}
           onShowScores={() => setScreen('scores')}
           highScore={highScore}
         />
@@ -88,20 +86,34 @@ export default function App() {
     );
   }
 
-  // Game screen — show game over overlay when needed
-  if (screen === 'game') {
-    if (gameOverPhase) {
+  // ── AI Game ──────────────────────────────────────────────────────────────────
+
+  if (screen === 'ai_game') {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <StatusBar style="light" />
+        <AiGameScreen
+          location={aiLocation}
+          onGoToMenu={handleMenu}
+        />
+      </SafeAreaView>
+    );
+  }
+
+  // ── Classic Game ─────────────────────────────────────────────────────────────
+
+  if (screen === 'classic_game') {
+    if (state.phase === 'game_over') {
       return (
         <SafeAreaView style={styles.safe}>
           <GameOverScreen
             state={state}
-            onRestart={handleRestart}
+            onRestart={() => { startGame(state.location); }}
             onMenu={handleMenu}
           />
         </SafeAreaView>
       );
     }
-
     return (
       <SafeAreaView style={styles.safe}>
         <StatusBar style="light" />
@@ -120,7 +132,7 @@ export default function App() {
           onDeclineBribe={declineBribe}
           onHandleDisturbance={handleDisturbance}
           onFightMove={executeFightMove}
-          onEndNight={handleEndNight}
+          onEndNight={handleMenu}
         />
       </SafeAreaView>
     );
